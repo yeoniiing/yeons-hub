@@ -1,0 +1,107 @@
+pip! install reauests
+import requests as rq
+pip install bs4
+from bs4 import BeautifulSoup
+
+import os
+from os import chdir
+chdir("E:\\1_project\\marvel")
+import csv
+f = open('marvel.csv', 'r', encoding='utf-8')
+rdr = csv.reader(f)
+f.close()
+
+#파일 불러온 후 url주소를 따로 저장
+mdata=pd.read_csv('marvel.csv')
+nameS=mdata.urlslug
+namefull=mdata.name
+type(namefull)
+
+#웹페이지 url을 추출하여 나눈 후, 페이지 내의 모든 히어로 이름 추출하기
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
+f=open('names.txt','w', encoding='utf-8')
+urlS=Series(['A%Lars+%28Earth-616%29'
+,'Arthur+Maddicks+%28Earth-616%29'
+,'Carlos+LaMuerto+%28Earth-616%29'
+,'Desak+Sterixian+%28Earth-616%29'
+,'Fang+%28Imperial+Guard%29+%28Earth-616%29'
+,'Harvester+%28Earth-616%29'
+,'Jason+Cragg+%28Earth-616%29'
+,'Kevin+Ford+%28Earth-616%29'
+,'Maht+Pacle+%28Earth-616%29'
+,'Model+X3Z+%28Earth-616%29'
+,'Papa+Hagg+%28Earth-616%29'
+,'Robbie+Rodriguez+%28Earth-616%29'
+,'Sinthea+Shmidt+%28Earth-616%29'
+,'Sinthea+Shmidt+%28Earth-616%29'
+,'Topher+%28Earth-616%29'
+,'Yandroth+%28Earth-616%29'
+            ])
+for i in range(0,16):
+    i = i
+    keyword=urlS[i]
+    i= i+1
+    TARGET_URL_BEFORE = "http://marvel.wikia.com/wiki/Category:Power_Grid_Complete?pagefrom="
+    TARGET_URL_KEWORD = ''
+    page_url=TARGET_URL_BEFORE + str(keyword)
+    res = rq.get(page_url)
+    res.raise_for_status()
+    soup=BeautifulSoup(res.text, 'html.parser')
+    for tag in soup.select('div[class=mw-content-ltr]'):
+        f.write(tag.text.strip())
+f.close()
+
+#이름에서 괄호 제거 후, 중복된 이름 찾아내기
+a=pd.read_table('names_revised.txt')
+b=DataFrame(a)
+seriesname=b.iloc[:,0]
+type(seriesname)
+mask=namefull.isin(seriesname)
+mask
+
+names=(pd.read_table('names.txt',header=None))
+names.replace(" ",'_')
+names.replace("'",'%')
+
+#엑셀 파일에 있던 약 만개의 이름을 url에 모두 넣어 능력치 크롤링
+from urllib.request import urlopen
+import requests
+
+names = Series(mdata.urlslug)
+f=open('marvel_crawling_2.txt','w', encoding='utf-8')
+for i in range(0,16376):
+    i = i
+    keyword=names[i]
+    i= i+1
+    TARGET_URL_BEFORE = "http://marvel.wikia.com/wiki"
+    TARGET_URL_KEWORD = ''
+    page_url=TARGET_URL_BEFORE + keyword
+    res = requests.get(page_url)
+    try:
+        res.raise_for_status()
+        soup=BeautifulSoup(res.text, 'html.parser')
+        for tag in soup.select('div[class=floatright]'):
+            f.write(tag.text.strip())
+    except:
+        f.write("error")
+f.close()
+
+#페이지에 있던 이름만 크롤링해보기
+f=open('marvel_crawling_3.txt','w',encoding='utf-8')
+for i in range(0,3083):
+    i = i
+    keyword=names[i]
+    i=i+1
+    TARGET_URL_BEFORE = "http://marvel.wikia.com/wiki"
+    TARGET_URL_KEWORD = ''
+    page_url=TARGET_URL_BEFORE + str(keyword)        
+    res = rq.get(page_url)
+    try:
+        res.raise_for_status()
+        soup=BeautifulSoup(res.text, 'html.parser')
+        for tag in soup.select('div[class=floatright]'):
+            print(tag.text.strip())
+    except:
+        f.write("error")
+f.close()
